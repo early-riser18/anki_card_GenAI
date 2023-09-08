@@ -14,7 +14,7 @@ The learner could then study as followed:
 - How does that fit with the practice of sentence mining, if that mined sentence will get overwritten at the next study.
 
 ## Compatibility
-The focus is on the platform Anki. Probably as an Add-on for the local app.
+The focus is on the platform Anki. The front-end would probably be a chrome extension or perhaps a standalone webiste, as long as it can access the user's localhost urls. 
 
 A dedicated field for the sentence is necessary, as well as an input field with the word 
 
@@ -37,3 +37,14 @@ Solution:
 1. install qt5 via brew "brew install qt5",
 2. then add qt5 to path PATH="/opt/homebrew/opt/qt@5/bin:$PATH"' 
 3. pip install PyQt5
+
+
+
+
+# Misc.
+Due to big difficulties with compatibility of the PyQt5 dependency of Anki's aqt package, it has been decided to implement the app using the http API (for now), and not make it an add on then... 
+
+
+# Questions for mentor
+- Should I make one card adapter per service? Like one Anki Card Adapter to my own Card Object, and then if there are different services in the future, I make another card adapter.
+- Does it make sense that based on the flashcard service provided, I pass a different object to my CardManager? 
