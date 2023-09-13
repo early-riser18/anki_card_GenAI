@@ -37,20 +37,27 @@ class AnkiService(FlashCardServiceInterface):
         return cards_info
 
     def __cast_raw_card_to_Card(self, raw_card_data):
-        card_list = []
+        if not self.field_mapping["tl_word"]:
+            raise Exception("Field mapping is not defined.")
+        
+        try:
+            my_Card = Card(
+                id=raw_card_data["cardId"],
+                tl_word=raw_card_data["fields"][self.field_mapping["tl_word"]]["value"],
+                tl_sentence="",
+            )
+            return my_Card
+        except:
+            return None
+        
 
-        for i in raw_card_data:
-            try:
-                card_list.append(
-                    Card(
-                        tl_word=i["fields"][self.tl_word_field]["value"], tl_sentence=""
-                    )
-                )
-
-            except:
-                pass
-
-        return card_list
+    def get_Cards_from_deck(self, deck_name) -> list[Card]:
+       
+        cards_raw_data = self.__get_cards_data(deck_name)
+        deck_of_Cards = []
+        for i in cards_raw_data:
+            deck_of_Cards.append(self.__cast_raw_card_to_Card(i))
+        return deck_of_Cards
 
     ### Utility functions for the Anki Connect API ###
     def __request(self, action, **params):
