@@ -27,12 +27,13 @@ class AnkiService(FlashCardServiceInterface):
         self.field_mapping["tl_sentence"] = mapping["tl_sentence"]
 
     def get_decks_list(self):
-        return invoke("deckNames")
+        return self.__invoke("deckNames")
 
-    def get_cards_info(self, deck_name: str) -> dict:
+    def __get_cards_data(self, deck_name: str) -> list[dict]:
         # Get the card Ids and then pass them directly to next function to get values of cards.
-        note_ids = invoke(action="findNotes", query=f"deck:{deck_name}")
-        cards_info = invoke("cardsInfo", cards=note_ids)
+        note_ids = self.__invoke(action="findNotes", query=f"deck:{deck_name}")
+        cards_info = self.__invoke("cardsInfo", cards=note_ids)
+
         return cards_info
 
     def __cast_raw_card_to_Card(self, raw_card_data):
@@ -51,31 +52,26 @@ class AnkiService(FlashCardServiceInterface):
 
         return card_list
 
-    def get_cards_from_deck(self, deck_name):
-        """"""
-        return self.__cast_raw_card_to_Card(self.get_cards_info(deck_name))
+    ### Utility functions for the Anki Connect API ###
+    def __request(self, action, **params):
+        return {"action": action, "params": params, "version": 6}
 
-
-def request(action, **params):
-    return {"action": action, "params": params, "version": 6}
-
-
-def invoke(action, **params):
-    requestJson = json.dumps(request(action, **params)).encode("utf-8")
-    response = json.load(
-        urllib.request.urlopen(
-            urllib.request.Request("http://127.0.0.1:8765", requestJson)
+    def __invoke(self, action, **params):
+        requestJson = json.dumps(self.__request(action, **params)).encode("utf-8")
+        response = json.load(
+            urllib.request.urlopen(
+                urllib.request.Request("http://127.0.0.1:8765", requestJson)
+            )
         )
-    )
-    if len(response) != 2:
-        raise Exception("response has an unexpected number of fields")
-    if "error" not in response:
-        raise Exception("response is missing required error field")
-    if "result" not in response:
-        raise Exception("response is missing required result field")
-    if response["error"] is not None:
-        raise Exception(response["error"])
-    return response["result"]
+        if len(response) != 2:
+            raise Exception("response has an unexpected number of fields")
+        if "error" not in response:
+            raise Exception("response is missing required error field")
+        if "result" not in response:
+            raise Exception("response is missing required result field")
+        if response["error"] is not None:
+            raise Exception(response["error"])
+        return response["result"]
 
 
 if __name__ == "__main__":
