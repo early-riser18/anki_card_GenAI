@@ -1,7 +1,8 @@
 import json
 import urllib.request
 import requests
-from utils.card_management import FlashCardServiceInterface, Card
+from utils.card_management import  Card
+from utils.FlashCardServiceInterface import FlashCardServiceInterface
 import pdb
 
 
@@ -58,6 +59,25 @@ class AnkiService(FlashCardServiceInterface):
         for i in cards_raw_data:
             deck_of_Cards.append(self.__cast_raw_card_to_Card(i))
         return deck_of_Cards
+    
+    def set_tl_sentence(self, card: Card, tl_sentence: str) -> Card:
+        card.tl_sentence = tl_sentence
+        return card
+
+    def update_FlashCardService_card(self, card: Card):
+        """
+        Given a Card, update the corresponding Anki card"""
+        # Field of anki card,
+        params = {
+            "card": card.id,
+            "keys": ["tl_sentence"],
+            "newValues": [card.tl_sentence],
+        }
+        try:
+            self.__invoke("setSpecificValueOfCard", params)
+        except:
+            raise Exception
+        return
 
     ### Utility functions for the Anki Connect API ###
     def __request(self, action, **params):
@@ -88,3 +108,5 @@ if __name__ == "__main__":
         "tl_sentence":"Mined Sentence",
         "card_id" : "cardId"
     })
+    print(card_service.__get_cards_data("Mandarin"))
+    print(card_service.get_Cards_from_deck("Mandarin"))

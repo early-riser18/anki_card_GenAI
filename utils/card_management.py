@@ -1,6 +1,7 @@
 # Card manager
 # Flashcard app service
 import pdb
+from utils.sentence_generation import SentenceGenerator
 
 
 class Card:
