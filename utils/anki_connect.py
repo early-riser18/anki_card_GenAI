@@ -23,8 +23,8 @@ class AnkiService(FlashCardServiceInterface):
         return True
 
     def set_field_mapping(self, mapping: dict) -> None:
-        self.tl_sentence_field = mapping["tl_sentence"]
-        self.tl_word_field = mapping["tl_word"]
+        self.field_mapping["tl_word"] = mapping["tl_word"]
+        self.field_mapping["tl_sentence"] = mapping["tl_sentence"]
 
     def get_decks_list(self):
         return invoke("deckNames")
@@ -80,13 +80,8 @@ def invoke(action, **params):
 
 if __name__ == "__main__":
     card_service = AnkiService()
-    raw_card_data = card_service.get_cards_info("Mandarin")
-    card_service.set_field_mapping(
-        {"tl_sentence": "Mined Sentence", "tl_word": "Mined Word"}
-    )
-    print(
-        card_service.connect_to_service(),
-        # card_service.get_decks_list(),
-        # card_service.get_cards_info("Mandarin")[-134],
-        card_service.__cast_raw_card_to_Card(raw_card_data[-110:-100]),
-    )
+    card_service.set_field_mapping({
+        "tl_word":"Mined Word",
+        "tl_sentence":"Mined Sentence",
+        "card_id" : "cardId"
+    })
