@@ -39,7 +39,7 @@ class FlashCardServiceInterface(ABC):
 
     @abstractmethod  
     def get_Cards_from_deck(self, deck_name: str) -> list[Card]:
-        """Returns list of Cards from the deck. Returns None when Card failed to be created."""
+        """Returns list of Cards from the deck."""
         pass
 
     @abstractmethod  

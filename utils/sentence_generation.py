@@ -17,5 +17,5 @@ class SentenceGenerator:
         generated_sentence = (
             f"This is a mock sentence for {card.tl_word} in {self.lang}"
         )
-        response = {"card": card, "generated_sentence": generated_sentence}
+        response = {"card_id": card.id, "generated_sentence": generated_sentence}
         return response

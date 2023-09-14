@@ -35,11 +35,12 @@ class CardManager:
         # Get cards from FlashCard Service
         deck_cards = self.flashCardService.get_Cards_from_deck(self.deck_name)
 
-        # Check which ones are due
-
+        
         # Generate Sentences
 
         for i, c in enumerate(deck_cards):
+            # Check which ones are due + if none are due, don't do. 
+
             try:
                 res = SentenceGenerator.generate_sentence(c)
                 c.set_tl_sentence(res["generated_sentence"])

@@ -46,7 +46,8 @@ class AnkiService(FlashCardServiceInterface):
             )
             return my_Card
         except:
-            return None
+            raise KeyError("Cannot create Card")
+            
         
 
     def get_Cards_from_deck(self, deck_name) -> list[Card]:
@@ -55,8 +56,16 @@ class AnkiService(FlashCardServiceInterface):
 
         deck_of_Cards = []
 
-        for i in cards_raw_data:
-            deck_of_Cards.append(self.cast_raw_card_to_Card(i))
+        for c in cards_raw_data:
+            try:
+                deck_of_Cards.append(self.cast_raw_card_to_Card(c))
+            except:
+                try:
+                    print(f"Failed at {c['cardId']}")
+                except:
+                    print(f"Corrupted card skipped: {c}")
+        print(len(cards_raw_data), len(deck_of_Cards))
+
         return deck_of_Cards
     
 
@@ -102,5 +111,6 @@ if __name__ == "__main__":
         "tl_sentence":"Mined Sentence",
         "card_id" : "cardId"
     })
-
-    print(card_service.get_Cards_from_deck("Mandarin"))
+    deck_name = card_service.get_decks_list()[1]
+    print(card_service.get_cards_data(deck_name))
+    # print(card_service.get_Cards_from_deck("Mandarin::Mandarin Mined Sentences"))
