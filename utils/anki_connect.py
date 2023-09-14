@@ -70,18 +70,16 @@ class AnkiService(FlashCardServiceInterface):
     
 
     def update_FlashCardService_card(self, card: Card):
-        
-        # Field of anki card,
+       
         params = {
-            "card": card.id,
-            "keys": ["tl_sentence"],
-            "newValues": [card.tl_sentence],
+            "note": {
+                "id": card.id,
+                "fields": {self.field_mapping["tl_sentence"]: card.tl_sentence},
+            }
         }
-        try:
-            self.__invoke("setSpecificValueOfCard", params)
-        except:
-            raise Exception
-        return
+
+        self.__invoke("updateNoteFields", **params)
+
 
     ### Utility functions for the Anki Connect API ###
     def __request(self, action, **params):
@@ -106,11 +104,15 @@ class AnkiService(FlashCardServiceInterface):
   
 if __name__ == "__main__":
     card_service = AnkiService()
-    card_service.set_field_mapping({
-        "tl_word":"Mined Word",
-        "tl_sentence":"Mined Sentence",
-        "card_id" : "cardId"
-    })
+    card_service.set_field_mapping(
+        {"tl_word": "Mined Word", "tl_sentence": "Mined Sentence", "card_id": "cardId"}
+    )
     deck_name = card_service.get_decks_list()[1]
-    print(card_service.get_cards_data(deck_name))
+    # print(card_service.get_cards_data(deck_name))
     # print(card_service.get_Cards_from_deck("Mandarin::Mandarin Mined Sentences"))
+
+    my_card = card_service.get_Cards_from_deck("Mandarin")[0]
+    my_card.set_tl_sentence("This is a testdddd")
+    print("Card values are: ", vars(my_card))
+    card_service.update_FlashCardService_card(my_card)
+    # print(json.dumps(card_service.get_cards_data(  deck_name)[100]))
