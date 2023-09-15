@@ -29,6 +29,18 @@ Currently, only [Anki](https://apps.ankiweb.net/) is supported.
 ## Update sentences for due cards
 Running this command will generate new sentences using the word meaningfully.
 
+# Local setup
+## Anki setup
+Follow the steps below to set up locally this project
+1. [Download Anki App](https://apps.ankiweb.net/#download)
+2. Once downloaded, create a user and select "Import File" at the bottom.
+3. Import to Anki the mock data available at: /local_setup/Mandarin_local_dev.apkg
+
+**Make sure to keep Anki running in the background while using this tool.** 
+## Environment setup
+```bash
+pip install -r requirements.txt
+```
 # Misc.
 Due to big difficulties with compatibility of the PyQt5 dependency of Anki's aqt package, it has been decided to implement the app using the http API (for now), and not make it an add on then... 
 
@@ -53,9 +65,5 @@ Solution:
 
 
 # Questions for mentor
-- Should I make one card adapter per service? Like one Anki Card Adapter to my own Card Object, and then if there are different services in the future, I make another card adapter.
-- Does it make sense that based on the flashcard service provided, I pass a different object to my CardManager? 
-- Is my adapter structure (FlashcardService, Card, Card Manager) correctly set up? 
-- FlashCardService.set_field_mapping() should be defined identically for all FlashCard services. Therefore, where to define it to keep code DRY?
-- Is it correct that I set some methods as private like __cast_raw_card_to_Card
-- Is my decomposition of the methods in the CardManager good? (not too small/too big)
+
+
