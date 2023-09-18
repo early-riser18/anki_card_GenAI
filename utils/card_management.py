@@ -21,49 +21,56 @@ class Card:
 
 class CardManager:
     def __init__(
-        self, flashCardService, sentenceGenerator: str, lang: str, deck_name: str
+        self, flash_card_service, sentence_generator: str, lang: str, deck_name: str
     ) -> None:
         self.lang = lang
-        self.sentenceGenerator = sentenceGenerator
-        self.flashCardService = flashCardService
+        self.sentence_generator = sentence_generator
+        self.flash_card_service = flash_card_service
         self.deck_name = deck_name
 
     def update_sentence_due_cards(self):
-        if not self.flashCardService.connect_to_service():
+        if not self.flash_card_service.connect_to_service():
             raise Exception("Unable to connect to FlashCard service")
 
         # Get cards from FlashCard Service
-        deck_cards = self.flashCardService.get_Cards_from_deck(self.deck_name)
-
-        # Check which ones are due
+        deck_cards = self.flash_card_service.get_Cards_from_deck(self.deck_name)
 
         # Generate Sentences
+        success_count = 0
 
-        for i, c in enumerate(deck_cards):
+        for c in deck_cards:
+            # Check which ones are due + if none are due, don't do. 
             try:
-                res = SentenceGenerator.generate_sentence(c)
-                c.set_tl_sentence(res["generated_sentence"])
+                print(vars(c))
 
+                res = self.sentence_generator.generate_sentence(c)
+                c.set_tl_sentence(res["generated_sentence"])
+            
             except:
-                raise Exception(
-                    f"Something went wrong while generating a sentence for cardId {c.card_id}"
+                print(
+                    f"Something went wrong while generating a sentence for cardId {c.id}"
                 )
+                continue
 
             # Request cards to be updated at FlashCard Service
-            # try:
-            #     self.flashCardService.update_FlashCardService_card(c)
-            # except:
-            #     raise Exception(f"An error occured while updating cardId {c.card_id}")
+            try:
+                self.flash_card_service.update_FlashCardService_card(c)
+            
+            except:
+                print(f"An error occured while updating cardId {c.id}")
+                continue
+            
+            success_count += 1
 
+        print(f"In {len(deck_cards)} valid cards, {success_count} were successfully updated.")
 
 if __name__ == "__main__":
     from utils.anki_connect import AnkiService
 
     cm = CardManager(AnkiService(), SentenceGenerator(), "en", "Mandarin")
-    cm.flashCardService.set_field_mapping(
+    cm.flash_card_service.set_field_mapping(
         {"tl_sentence": "Mined Sentence", "tl_word": "Mined Word"}
     )
 
     cm.update_sentence_due_cards()
-# Standardize the returned object from FlashCard Service
-# Instanciate card from object in CardManager
+

@@ -23,21 +23,18 @@ class AnkiService(FlashCardServiceInterface):
 
         return True
 
-    def set_field_mapping(self, mapping: dict) -> None:
-        self.field_mapping["tl_word"] = mapping["tl_word"]
-        self.field_mapping["tl_sentence"] = mapping["tl_sentence"]
-
+       
     def get_decks_list(self):
         return self.__invoke("deckNames")
 
-    def __get_cards_data(self, deck_name: str) -> list[dict]:
+    def get_cards_data(self, deck_name: str) -> list[dict]:
         # Get the card Ids and then pass them directly to next function to get values of cards.
         note_ids = self.__invoke(action="findNotes", query=f"deck:{deck_name}")
         cards_info = self.__invoke("cardsInfo", cards=note_ids)
 
         return cards_info
 
-    def __cast_raw_card_to_Card(self, raw_card_data):
+    def cast_raw_card_to_Card(self, raw_card_data):
         if not self.field_mapping["tl_word"]:
             raise Exception("Field mapping is not defined.")
         
@@ -49,35 +46,40 @@ class AnkiService(FlashCardServiceInterface):
             )
             return my_Card
         except:
-            return None
+            raise KeyError("Cannot create Card")
+            
         
 
     def get_Cards_from_deck(self, deck_name) -> list[Card]:
        
-        cards_raw_data = self.__get_cards_data(deck_name)
+        cards_raw_data = self.get_cards_data(deck_name)
+
         deck_of_Cards = []
-        for i in cards_raw_data:
-            deck_of_Cards.append(self.__cast_raw_card_to_Card(i))
+
+        for c in cards_raw_data:
+            try:
+                deck_of_Cards.append(self.cast_raw_card_to_Card(c))
+            except:
+                try:
+                    print(f"Failed at {c['cardId']}")
+                except:
+                    print(f"Corrupted card skipped: {c}")
+        print(len(cards_raw_data), len(deck_of_Cards))
+
         return deck_of_Cards
     
-    def set_tl_sentence(self, card: Card, tl_sentence: str) -> Card:
-        card.tl_sentence = tl_sentence
-        return card
 
     def update_FlashCardService_card(self, card: Card):
-        """
-        Given a Card, update the corresponding Anki card"""
-        # Field of anki card,
+       
         params = {
-            "card": card.id,
-            "keys": ["tl_sentence"],
-            "newValues": [card.tl_sentence],
+            "note": {
+                "id": card.id,
+                "fields": {self.field_mapping["tl_sentence"]: card.tl_sentence},
+            }
         }
-        try:
-            self.__invoke("setSpecificValueOfCard", params)
-        except:
-            raise Exception
-        return
+
+        self.__invoke("updateNoteFields", **params)
+
 
     ### Utility functions for the Anki Connect API ###
     def __request(self, action, **params):
@@ -99,14 +101,18 @@ class AnkiService(FlashCardServiceInterface):
         if response["error"] is not None:
             raise Exception(response["error"])
         return response["result"]
-
-
+  
 if __name__ == "__main__":
     card_service = AnkiService()
-    card_service.set_field_mapping({
-        "tl_word":"Mined Word",
-        "tl_sentence":"Mined Sentence",
-        "card_id" : "cardId"
-    })
-    print(card_service.__get_cards_data("Mandarin"))
-    print(card_service.get_Cards_from_deck("Mandarin"))
+    card_service.set_field_mapping(
+        {"tl_word": "Mined Word", "tl_sentence": "Mined Sentence", "card_id": "cardId"}
+    )
+    deck_name = card_service.get_decks_list()[1]
+    # print(card_service.get_cards_data(deck_name))
+    # print(card_service.get_Cards_from_deck("Mandarin::Mandarin Mined Sentences"))
+
+    my_card = card_service.get_Cards_from_deck("Mandarin")[0]
+    my_card.set_tl_sentence("This is a testdddd")
+    print("Card values are: ", vars(my_card))
+    card_service.update_FlashCardService_card(my_card)
+    # print(json.dumps(card_service.get_cards_data(  deck_name)[100]))

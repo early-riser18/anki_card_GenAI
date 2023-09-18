@@ -15,7 +15,7 @@ class SentenceGenerator:
         # Mock code while sentence generator is developped.
         # Catch exceptions from 3rd party service.
         generated_sentence = (
-            f"This is a mock sentence for {card.tl_word} in {self.lang}"
+            f"This is a mock sentence for {card.tl_word}"
         )
-        response = {"card": card, "generated_sentence": generated_sentence}
+        response = {"card_id": card.id, "generated_sentence": generated_sentence}
         return response
