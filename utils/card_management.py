@@ -43,12 +43,12 @@ class CardManager:
             try:
                 print(vars(c))
 
-                res = self.sentence_generator.generate_sentence(c)
+                res = self.sentence_generator.generate_sentence(c, self.lang)
                 c.set_tl_sentence(res["generated_sentence"])
             
-            except:
+            except Exception as e:
                 print(
-                    f"Something went wrong while generating a sentence for cardId {c.id}"
+                    f"Something went wrong while generating a sentence for cardId {c.id}. Exception: {e}"
                 )
                 continue
 
@@ -67,7 +67,7 @@ class CardManager:
 if __name__ == "__main__":
     from utils.anki_connect import AnkiService
 
-    cm = CardManager(AnkiService(), SentenceGenerator(), "en", "Mandarin")
+    cm = CardManager(AnkiService(), SentenceGenerator(), "cn-TW", "test_deck")
     cm.flash_card_service.set_field_mapping(
         {"tl_sentence": "Mined Sentence", "tl_word": "Mined Word"}
     )

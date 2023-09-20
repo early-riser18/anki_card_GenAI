@@ -8,11 +8,6 @@ The learner could then study as followed:
 1. Review each card by first being presented the full (new) sentence with the word highlighted.
 2. Or listen to the audio of the sentence first, and see the pronunciation of the word being reviewed. Leaving that person to guess what the meaning of the word is. 
 
-## Some considerations
-- Can it work locally or does it require an internet connection
-- What tool (GenAI) to use and what are the costs involved
-- How does that fit with the practice of sentence mining, if that mined sentence will get overwritten at the next study.
-
 ## Compatibility
 The focus is on the platform Anki. The front-end would probably be a chrome extension or perhaps a standalone webiste, as long as it can access the user's localhost urls. 
 
@@ -26,7 +21,7 @@ Currently, only [Anki](https://apps.ankiweb.net/) is supported.
 1. Authenticate
 2. Select decks to generate sentence for
 3. Provide fields mapping (Word, Sentence) and language
-## Update sentences for due cards
+## Generate a sentence and update card for cards due today
 Running this command will generate new sentences using the word meaningfully.
 
 # Local setup
@@ -41,27 +36,24 @@ Follow the steps below to set up locally this project
 ```bash
 pip install -r requirements.txt
 ```
+## API Keys
+For the Sentence Generator to run, it requires a valid API key to OpenAI. Make sure to export the following variable to your environment:
+```bash
+OPEN_AI_TOKEN=<your key>
+```
 # Misc.
 Due to big difficulties with compatibility of the PyQt5 dependency of Anki's aqt package, it has been decided to implement the app using the http API (for now), and not make it an add on then... 
 
 ### Open questions 
 - How to know the language of the word for which a sentence is meant to be generated
 - How to handle wrong/mistyped input words. Eg: "Convinient" for "Convenient"
--
+- How does that fit with the practice of sentence mining, if that mined sentence will get overwritten at the next study.
+
 
 
 ### Useful resources
 - Anki Add-ons docs: https://addon-docs.ankiweb.net/intro.html
 - Anki local server API - for local dev: https://github.com/FooSoft/anki-connect
-
-
-### Local setup notes
-PyQt5 was not working due to missing qmake compiler. 
-Solution: 
-1. install qt5 via brew "brew install qt5",
-2. then add qt5 to path PATH="/opt/homebrew/opt/qt@5/bin:$PATH"' 
-3. pip install PyQt5
-
 
 
 # Questions for mentor
