@@ -32,8 +32,8 @@ class AnkiService(FlashCardServiceInterface):
 
     def __get_cards_data(self, deck_name: str) -> list[dict]:
         # Get the card Ids and then pass them directly to next function to get values of cards.
-        note_ids = self.__invoke(action="findNotes", query=f"deck:{deck_name}")
-        cards_info = self.__invoke("cardsInfo", cards=note_ids)
+        note_ids = self.__invoke(action="findNotes", query=f'"deck:{deck_name}"')
+        cards_info = self.__invoke("notesInfo", notes=note_ids)
 
         return cards_info
 
@@ -43,7 +43,7 @@ class AnkiService(FlashCardServiceInterface):
         
         try:
             my_Card = Card(
-                id=raw_card_data["cardId"],
+                id=raw_card_data["noteId"],
                 tl_word=raw_card_data["fields"][self.field_mapping["tl_word"]]["value"],
                 tl_sentence="",
             )
@@ -56,8 +56,23 @@ class AnkiService(FlashCardServiceInterface):
        
         cards_raw_data = self.__get_cards_data(deck_name)
         deck_of_Cards = []
-        for i in cards_raw_data:
-            deck_of_Cards.append(self.__cast_raw_card_to_Card(i))
+
+        failed_cards = []
+        for c in cards_raw_data:
+            try:
+                deck_of_Cards.append(self.cast_raw_card_to_Card(c))
+            except Exception as e:
+                failed_cards.append(c)
+                try:
+                    print(f"Failed at {c['cardId']}. Error: {e}")
+                except:
+                    print(f"Corrupted card skipped: {c}")
+        print(f"Raw cards provided: {len(cards_raw_data)}, \n Cards successfully created {len(deck_of_Cards)}")
+
+
+        ## Debug ##
+        with open("log_corrupted_cards.py", "w") as file:
+            file.write(str(failed_cards))
         return deck_of_Cards
     
     def set_tl_sentence(self, card: Card, tl_sentence: str) -> Card:
@@ -103,10 +118,18 @@ class AnkiService(FlashCardServiceInterface):
 
 if __name__ == "__main__":
     card_service = AnkiService()
-    card_service.set_field_mapping({
-        "tl_word":"Mined Word",
-        "tl_sentence":"Mined Sentence",
-        "card_id" : "cardId"
-    })
-    print(card_service.__get_cards_data("Mandarin"))
-    print(card_service.get_Cards_from_deck("Mandarin"))
+
+    card_service.set_field_mapping(
+        {"tl_word": "Mined Word", "tl_sentence": "Mined Sentence", "card_id": "cardId"}
+    )
+    deck_name = card_service.get_decks_list()[4]
+    print("Chosen deck is: ", deck_name)
+    # print(card_service.get_cards_data(deck_name))
+    card_service.get_Cards_from_deck("Mandarin::Mandarin Mined Sentences")
+
+    # my_card = card_service.get_Cards_from_deck("Mandarin")[0]
+    # my_card.set_tl_sentence("This is a testdddd")
+    # print("Card values are: ", vars(my_card))
+    # card_service.update_FlashCardService_card(my_card)
+    # print(json.dumps(card_service.get_cards_data(  deck_name)[100]))
+
