@@ -39,38 +39,40 @@ class CardManager:
         success_count = 0
 
         for c in deck_cards:
-            # Check which ones are due + if none are due, don't do. 
+            # Check which ones are due + if none are due, don't do.
             try:
                 print(vars(c))
 
-                res = self.sentence_generator.generate_sentence(c)
+                res = self.sentence_generator.generate_sentence(c, self.lang)
                 c.set_tl_sentence(res["generated_sentence"])
-            
-            except:
+
+            except Exception as e:
                 print(
-                    f"Something went wrong while generating a sentence for cardId {c.id}"
+                    f"Something went wrong while generating a sentence for cardId {c.id}. Exception: {e}"
                 )
                 continue
 
             # Request cards to be updated at FlashCard Service
             try:
                 self.flash_card_service.update_FlashCardService_card(c)
-            
+
             except:
                 print(f"An error occured while updating cardId {c.id}")
                 continue
-            
+
             success_count += 1
 
-        print(f"In {len(deck_cards)} valid cards, {success_count} were successfully updated.")
+        print(
+            f"In {len(deck_cards)} valid cards, {success_count} were successfully updated."
+        )
+
 
 if __name__ == "__main__":
     from utils.anki_connect import AnkiService
 
-    cm = CardManager(AnkiService(), SentenceGenerator(), "en", "Mandarin")
+    cm = CardManager(AnkiService(), SentenceGenerator(), "cn-TW", "test_deck")
     cm.flash_card_service.set_field_mapping(
         {"tl_sentence": "Mined Sentence", "tl_word": "Mined Word"}
     )
 
     cm.update_sentence_due_cards()
-

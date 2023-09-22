@@ -114,5 +114,5 @@ if __name__ == "__main__":
     my_card = card_service.get_Cards_from_deck("Mandarin")[0]
     my_card.set_tl_sentence("This is a testdddd")
     print("Card values are: ", vars(my_card))
-    card_service.update_FlashCardService_card(my_card)
+    # card_service.update_FlashCardService_card(my_card)
     # print(json.dumps(card_service.get_cards_data(  deck_name)[100]))
