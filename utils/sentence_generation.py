@@ -22,13 +22,13 @@ class SentenceGenerator:
             generated_sentence = self.call_api(card.tl_word, lang)
             print(f"Generated sentence: {generated_sentence}")
 
-            if self.validate_generated_sentence(card.tl_word, generated_sentence): 
+            if self.validate_generated_sentence(card.tl_word, generated_sentence):
                 response["generated_sentence"] = generated_sentence
                 return response
             else: 
                 print("- Failed to generate valid sentence.")
                 trial_count += 1
-                     
+
         raise Exception("Unable to generate sentence")
 
     def call_api(self, word, lang):
@@ -47,7 +47,7 @@ class SentenceGenerator:
                 },
                 {
                     "role": "user",
-                    "content": str({'word': f"{word}",'language': f"{lang}"}),
+                    "content": str({"word": f"{word}", "language": f"{lang}"}),
                 },
             ],
             "temperature": 1.3,
@@ -78,8 +78,6 @@ class SentenceGenerator:
         validity = initial_word in transformed
         print("Gen Sentence is valid?: ", validity)
         return validity
-
-
 
 
 if __name__ == "__main__":
